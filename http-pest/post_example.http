@@ -1,0 +1,8 @@
+POST http://foo.de:9000/path/b/c?a1=1a&2b=b2 HTTP/1.1
+Content-Type: application/xml
+Authorization: Basic 1234
+
+<root>
+  <a>1</a>
+  <b>2</b>
+</root>

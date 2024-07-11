@@ -1,0 +1,28 @@
+wp       = _{ SPACE_SEPARATOR | "\t" }
+alpha    = _{ 'a'..'z' | 'A'..'Z' }
+digit    = _{ '0'..'9' }
+alphanum = _{ (alpha | digit)+ }
+symbols  = _{ "%" }
+urlchar  = _{ alphanum ~ symbols* }
+
+method  = { "GET" | "POST" | "PUT" | "DELETE" }
+version = { "HTTP/1.1" }
+
+protocol    = { "http" | "https" }
+host        = { alphanum ~ ("." ~ alphanum)* }
+port        = { digit+ }
+path        = { ("/" ~ alphanum*)+ }
+param       = { param_name ~ "=" ~ param_value }
+param_name  = { alphanum }
+param_value = { alphanum }
+
+url = { protocol ~ "://" ~ host ~ (":" ~ port)? ~ path? ~ ("?" ~ param ~ ("&" ~ param)*)? }
+
+header_name  = { (alphanum | "-")+ }
+header_value = { (LETTER | NUMBER | SYMBOL | "/" | wp)* }
+header       = { header_name ~ wp* ~ ":" ~ wp* ~ header_value }
+headers      = { header ~ (NEWLINE ~ header)* }
+
+body = { ANY+ }
+
+request = { SOI ~ method ~ wp ~ url ~ (wp ~ version)? ~ (NEWLINE ~ headers)? ~ (NEWLINE ~ NEWLINE ~ body)? }
