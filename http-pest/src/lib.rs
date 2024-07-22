@@ -1,24 +1,52 @@
-use pest::Parser;
+use pest::{error::Error, iterators::Pairs, Parser};
 use pest_derive::Parser;
+
+mod ast;
+mod ast_2;
 
 #[derive(Parser)]
 #[grammar = "../request.pest"]
 pub struct RequestParser;
 
 impl RequestParser {
-    pub fn parse_request(
-        input: &str,
-    ) -> Result<pest::iterators::Pairs<Rule>, pest::error::Error<Rule>> {
+    pub fn parse_request(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
         RequestParser::parse(Rule::request, input)
     }
 }
 
-#[test]
-fn test_get_request_example() {
-    let input = include_str!("../get_example.http");
-    let pairs = RequestParser::parse_request(input).unwrap_or_else(|e| panic!("{}", e));
-    for pair in pairs {
-        for pair in pair.into_inner() {
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_request_example_with_recursion() {
+        let input = include_str!("../get_example.http");
+        let pairs = RequestParser::parse_request(input).unwrap_or_else(|e| panic!("{}", e));
+        let mut indentation = String::new();
+
+        fn dive_in(pairs: Pairs<Rule>, indentation: &mut String) {
+            for pair in pairs {
+                let next_pair = pair.clone().into_inner();
+                if next_pair.clone().count() > 0 {
+                    println!("{indentation}- {:?}", pair.as_rule());
+                    indentation.push(' ');
+                    indentation.push(' ');
+                    dive_in(next_pair, indentation);
+                } else {
+                    println!("{indentation}- {:?}: {:?}", pair.as_rule(), pair.as_str());
+                }
+            }
+        }
+
+        dive_in(pairs, &mut indentation);
+    }
+
+    #[test]
+    fn test_get_request_example_with_rule_matching() {
+        let input = include_str!("../get_example.http");
+        let pairs = RequestParser::parse_request(input).unwrap_or_else(|e| panic!("{}", e));
+
+        for pair in pairs {
             match pair.as_rule() {
                 Rule::method => {
                     println!("- {:?}: {:?} ", pair.as_rule(), pair.as_str());
