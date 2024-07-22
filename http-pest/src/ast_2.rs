@@ -16,8 +16,8 @@ pub enum Method {
 }
 
 #[derive(Debug, PartialEq, Eq, FromPest)]
-#[pest_ast(rule(Rule::protocol))]
-pub enum Protocol {
+#[pest_ast(rule(Rule::scheme))]
+pub enum Scheme {
     Http,
     Https,
 }
@@ -38,7 +38,7 @@ pub struct Port(
 #[derive(Debug, PartialEq, Eq, FromPest)]
 #[pest_ast(rule(Rule::url))]
 pub struct Url {
-    protocol: Protocol,
+    scheme: Scheme,
     #[pest_ast(outer(with(span_into_str), with(str::to_string)))]
     host: String,
     port: Option<Port>,

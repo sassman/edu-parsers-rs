@@ -5,7 +5,7 @@ pub enum Method {
     Delete,
 }
 
-pub enum Protocol {
+pub enum Scheme {
     Http,
     Https,
 }
@@ -15,7 +15,7 @@ pub enum Version {
 }
 
 pub struct Url {
-    protocol: Protocol,
+    scheme: Scheme,
     host: String,
     port: Option<u16>,
     path: String,

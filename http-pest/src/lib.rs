@@ -61,7 +61,7 @@ mod tests {
                             url_component.as_str()
                         );
                         match url_component.as_rule() {
-                            Rule::protocol => {
+                            Rule::scheme => {
                                 assert_eq!(url_component.as_str(), "http");
                             }
                             Rule::host => {
