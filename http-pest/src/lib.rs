@@ -21,7 +21,7 @@ mod tests {
     #[test]
     fn test_get_request_example_with_recursion() {
         let input = include_str!("../get_example.http");
-        let pairs = RequestParser::parse_request(input).unwrap_or_else(|e| panic!("{}", e));
+        let pairs = RequestParser::parse_request(input).unwrap();
         let mut indentation = String::new();
 
         fn dive_in(pairs: Pairs<Rule>, indentation: &mut String) {
@@ -43,7 +43,7 @@ mod tests {
     #[test]
     fn test_get_request_example_with_rule_matching() {
         let input = include_str!("../get_example.http");
-        let pairs = RequestParser::parse_request(input).unwrap_or_else(|e| panic!("{}", e));
+        let pairs = RequestParser::parse_request(input).unwrap();
 
         for pair in pairs {
             match pair.as_rule() {
