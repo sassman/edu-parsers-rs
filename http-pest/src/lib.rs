@@ -29,8 +29,7 @@ mod tests {
                 let next_pair = pair.clone().into_inner();
                 if next_pair.clone().count() > 0 {
                     println!("{indentation}- {:?}", pair.as_rule());
-                    indentation.push(' ');
-                    indentation.push(' ');
+                    indentation.push_str("  ");
                     dive_in(next_pair, indentation);
                 } else {
                     println!("{indentation}- {:?}: {:?}", pair.as_rule(), pair.as_str());
