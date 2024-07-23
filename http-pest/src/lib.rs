@@ -22,70 +22,56 @@ mod tests {
     fn test_get_request_example_with_recursion() {
         let input = include_str!("../get_example.http");
         let pairs = RequestParser::parse_request(input).unwrap();
-        let mut indentation = String::new();
 
-        fn dive_in(pairs: Pairs<Rule>, indentation: &mut String) {
+        fn dive_in(pairs: Pairs<Rule>, indentation: &str) {
             for pair in pairs {
                 let next_pair = pair.clone().into_inner();
                 if next_pair.clone().count() > 0 {
                     println!("{indentation}- {:?}", pair.as_rule());
-                    indentation.push_str("  ");
-                    dive_in(next_pair, indentation);
+                    let mut i = indentation.to_owned();
+                    i.push_str("  ");
+                    dive_in(next_pair, &i);
                 } else {
                     println!("{indentation}- {:?}: {:?}", pair.as_rule(), pair.as_str());
                 }
             }
         }
 
-        dive_in(pairs, &mut indentation);
+        dive_in(pairs, "");
     }
 
     #[test]
     fn test_get_request_example_with_rule_matching() {
         let input = include_str!("../get_example.http");
-        let pairs = RequestParser::parse_request(input).unwrap();
+        let mut pairs = RequestParser::parse_request(input).unwrap();
 
-        for pair in pairs {
-            match pair.as_rule() {
-                Rule::method => {
-                    println!("- {:?}: {:?} ", pair.as_rule(), pair.as_str());
-                    assert_eq!(pair.as_str(), "GET");
-                }
-                Rule::url => {
-                    println!("- {:?} ({})", pair.as_rule(), pair.as_str());
-                    for url_component in pair.into_inner() {
-                        println!(
-                            "  - {:?}: {:?} ",
-                            url_component.as_rule(),
-                            url_component.as_str()
-                        );
-                        match url_component.as_rule() {
-                            Rule::scheme => {
-                                assert_eq!(url_component.as_str(), "http");
-                            }
-                            Rule::host => {
-                                assert_eq!(url_component.as_str(), "foo.de");
-                            }
-                            Rule::port => {
-                                assert_eq!(url_component.as_str(), "9000");
-                            }
-                            Rule::path => {
-                                assert_eq!(url_component.as_str(), "/path/b/c");
-                            }
-                            _ => {}
-                        }
-                    }
-                }
-                Rule::header => {
-                    println!("- {:?}: {:?} ", pair.as_rule(), pair.as_str());
-                    let mut inner_pairs = pair.into_inner();
-                    let key = inner_pairs.next().unwrap();
-                    let value = inner_pairs.next().unwrap();
-                    assert_eq!(key.as_str(), "Accept");
-                    assert_eq!(value.as_str(), "text/html");
-                }
-                _ => {}
-            }
-        }
+        let request = pairs.next().unwrap();
+        assert_eq!(request.as_rule(), Rule::request);
+        println!(
+            "{:?} with this content: {:?}",
+            request.as_rule(),
+            request.as_str()
+        );
+
+        let mut all_request_parts = request.into_inner();
+        let http_method = all_request_parts.next().unwrap();
+        assert_eq!(http_method.as_rule(), Rule::method);
+        println!(
+            "{:?} with this content: {:?}",
+            http_method.as_rule(),
+            http_method.as_str()
+        );
+
+        let url = all_request_parts.next().unwrap();
+        assert_eq!(url.as_rule(), Rule::url);
+        println!("{:?} with this content: {:?}", url.as_rule(), url.as_str());
+
+        let scheme = url.into_inner().next().unwrap();
+        assert_eq!(scheme.as_rule(), Rule::scheme);
+        println!(
+            "{:?} with this content: {:?}",
+            scheme.as_rule(),
+            scheme.as_str()
+        );
     }
 }
