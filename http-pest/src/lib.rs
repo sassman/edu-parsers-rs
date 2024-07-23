@@ -74,4 +74,21 @@ mod tests {
             scheme.as_str()
         );
     }
+
+    #[test]
+    fn test_error_messages_1() {
+        let input = r#"GET ftp://ftp.de:21/file"#;
+        assert_eq!(
+            RequestParser::parse_request(input)
+                .err()
+                .unwrap()
+                .to_string(),
+            r#" --> 1:5
+  |
+1 | GET ftp://ftp.de:21/file
+  |     ^---
+  |
+  = expected scheme"#
+        )
+    }
 }
